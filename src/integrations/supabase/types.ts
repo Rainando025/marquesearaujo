@@ -14,6 +14,100 @@ export type Database = {
   }
   public: {
     Tables: {
+      events: {
+        Row: {
+          created_at: string
+          id: string
+          property_id: string | null
+          tipo: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          property_id?: string | null
+          tipo: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          property_id?: string | null
+          tipo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leads: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          interesse: string
+          nome: string
+          notas: string
+          origem: string
+          property_id: string | null
+          status: string
+          telefone: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string
+          id?: string
+          interesse?: string
+          nome: string
+          notas?: string
+          origem?: string
+          property_id?: string | null
+          status?: string
+          telefone?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          interesse?: string
+          nome?: string
+          notas?: string
+          origem?: string
+          property_id?: string | null
+          status?: string
+          telefone?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leads_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      neighborhoods: {
+        Row: {
+          created_at: string
+          id: string
+          nome: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          nome: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nome?: string
+        }
+        Relationships: []
+      }
       properties: {
         Row: {
           area: number
@@ -22,6 +116,7 @@ export type Database = {
           banheiros: number
           created_at: string
           descricao: string | null
+          fotos: string[]
           id: string
           imagem_url: string | null
           negocio: string
@@ -37,6 +132,7 @@ export type Database = {
           banheiros?: number
           created_at?: string
           descricao?: string | null
+          fotos?: string[]
           id?: string
           imagem_url?: string | null
           negocio?: string
@@ -52,6 +148,7 @@ export type Database = {
           banheiros?: number
           created_at?: string
           descricao?: string | null
+          fotos?: string[]
           id?: string
           imagem_url?: string | null
           negocio?: string
@@ -59,6 +156,63 @@ export type Database = {
           quartos?: number
           tipo?: string
           titulo?: string
+        }
+        Relationships: []
+      }
+      recommendation_queries: {
+        Row: {
+          created_at: string
+          id: string
+          resultado: Json
+          texto: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          resultado?: Json
+          texto: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          resultado?: Json
+          texto?: string
+        }
+        Relationships: []
+      }
+      settings: {
+        Row: {
+          bio: string
+          creci: string
+          email: string
+          foto_url: string | null
+          id: number
+          nome_corretor: string
+          nome_empresa: string
+          updated_at: string
+          whatsapp: string
+        }
+        Insert: {
+          bio?: string
+          creci?: string
+          email?: string
+          foto_url?: string | null
+          id?: number
+          nome_corretor?: string
+          nome_empresa?: string
+          updated_at?: string
+          whatsapp?: string
+        }
+        Update: {
+          bio?: string
+          creci?: string
+          email?: string
+          foto_url?: string | null
+          id?: number
+          nome_corretor?: string
+          nome_empresa?: string
+          updated_at?: string
+          whatsapp?: string
         }
         Relationships: []
       }

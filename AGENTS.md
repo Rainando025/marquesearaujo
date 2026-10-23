@@ -8,3 +8,7 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Property catalog lives in the `properties` table; public reads go through `listProperties` server fn (publishable client), admin writes via browser client under RLS `has_role(admin)`. Why: one source of truth for landing page and admin.
+- Property photos go to the private `imoveis` bucket and are stored as long-lived signed URLs, because the workspace blocks public buckets.
+- AI recommendations run in `recommendProperties` server fn via Lovable AI Gateway Responses API with structured output; ids are filtered against the catalog. Why: keep key server-side and prevent invented listings.

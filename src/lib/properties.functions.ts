@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 
 export type Property = Database["public"]["Tables"]["properties"]["Row"];
+export type Settings = Database["public"]["Tables"]["settings"]["Row"];
 
 function publicClient() {
   const key = process.env["SUPABASE_PUBLISHABLE_KEY"]!;
@@ -21,24 +22,58 @@ function publicClient() {
 
 async function loadActive(): Promise<Property[]> {
   const { data, error } = await publicClient()
-    .from("properties")
-    .select("*")
-    .eq("ativo", true)
-    .order("created_at", { ascending: false });
-  if (error) {
-    console.error(error);
-    return [];
-  }
+    .from("properties").select("*").eq("ativo", true).order("created_at", { ascending: false });
+  if (error) { console.error(error); return []; }
   return data ?? [];
 }
 
-export const listProperties = createServerFn({ method: "GET" }).handler(() => loadActive());
+export const getSiteData = createServerFn({ method: "GET" }).handler(async () => {
+  const c = publicClient();
+  const [imoveis, s, b] = await Promise.all([
+    loadActive(),
+    c.from("settings").select("*").eq("id", 1).maybeSingle(),
+    c.from("neighborhoods").select("nome").order("nome"),
+  ]);
+  return { imoveis, settings: s.data as Settings | null, bairros: (b.data ?? []).map((x) => x.nome) };
+});
 
-type Prefs = { texto: string };
+const TIPOS = new Set(["page_view", "property_view", "whatsapp_click", "property_click"]);
+export const trackEvent = createServerFn({ method: "POST" })
+  .inputValidator((d: { tipo: string; property_id?: string | null }) => {
+    if (!TIPOS.has(d?.tipo)) throw new Error("tipo inválido");
+    const pid = typeof d.property_id === "string" && /^[0-9a-f-]{36}$/.test(d.property_id) ? d.property_id : null;
+    return { tipo: d.tipo, property_id: pid };
+  })
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin.from("events").insert(data);
+    return { ok: true };
+  });
+
+export const createLead = createServerFn({ method: "POST" })
+  .inputValidator((d: { nome: string; telefone: string; email?: string; interesse?: string; property_id?: string | null; origem?: string }) => {
+    const nome = String(d?.nome ?? "").trim().slice(0, 120);
+    const telefone = String(d?.telefone ?? "").trim().slice(0, 40);
+    if (nome.length < 2 || telefone.length < 8) throw new Error("Informe nome e telefone.");
+    return {
+      nome, telefone,
+      email: String(d.email ?? "").trim().slice(0, 160),
+      interesse: String(d.interesse ?? "").trim().slice(0, 1500),
+      property_id: typeof d.property_id === "string" && /^[0-9a-f-]{36}$/.test(d.property_id) ? d.property_id : null,
+      origem: String(d.origem ?? "site").slice(0, 40),
+    };
+  })
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("leads").insert(data);
+    if (error) { console.error(error); return { ok: false }; }
+    return { ok: true };
+  });
+
 export type Recommendation = { id: string; motivo: string };
 
 export const recommendProperties = createServerFn({ method: "POST" })
-  .inputValidator((d: Prefs) => {
+  .inputValidator((d: { texto: string }) => {
     const texto = String(d?.texto ?? "").trim().slice(0, 1500);
     if (texto.length < 3) throw new Error("Descreva suas preferências.");
     return { texto };
@@ -53,6 +88,7 @@ export const recommendProperties = createServerFn({ method: "POST" })
     const { streamText, Output } = await import("ai");
     const { z } = await import("zod");
     const { createLovableAiGatewayRunIdFetch } = await import("./aig-run-id.server");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const runIdFetch = createLovableAiGatewayRunIdFetch();
     const provider = createOpenAI({
@@ -81,10 +117,16 @@ export const recommendProperties = createServerFn({ method: "POST" })
         },
       });
       const out = await result.output;
-      const ids = new Set(imoveis.map((i) => i.id));
-      return { items: out.items.filter((r) => ids.has(r.id)).slice(0, 3) };
+      const byId = new Map(imoveis.map((i) => [i.id, i]));
+      const items = out.items.filter((r) => byId.has(r.id)).slice(0, 3);
+      await supabaseAdmin.from("recommendation_queries").insert({
+        texto: data.texto,
+        resultado: items.map((r) => ({ ...r, titulo: byId.get(r.id)?.titulo })),
+      });
+      return { items };
     } catch (e) {
       console.error("recommend error", e);
+      await supabaseAdmin.from("recommendation_queries").insert({ texto: data.texto, resultado: [] });
       const status = (e as { statusCode?: number })?.statusCode;
       if (status === 402) return { items: [], error: "Créditos de IA esgotados. Tente mais tarde." };
       if (status === 429) return { items: [], error: "Muitas solicitações. Aguarde um instante." };

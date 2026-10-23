@@ -15,6 +15,13 @@
       "when": 1792676384296,
       "tag": "0001_migration",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792754099320,
+      "tag": "0002_crm_settings_events",
+      "breakpoints": true
     }
   ]
 }

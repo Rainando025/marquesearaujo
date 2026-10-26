@@ -7,6 +7,7 @@ import { Imoveis } from "@/components/admin/Imoveis";
 import { Leads } from "@/components/admin/Leads";
 import { Consultas } from "@/components/admin/Consultas";
 import { Bairros } from "@/components/admin/Bairros";
+import { Carteira } from "@/components/admin/Carteira";
 import { Perfil } from "@/components/admin/Perfil";
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -25,6 +26,7 @@ export const Route = createFileRoute("/_authenticated/admin")({
 const abas = [
   ["dashboard", "Painel"],
   ["imoveis", "Imóveis"],
+  ["carteira", "Carteira"],
   ["leads", "Leads e clientes"],
   ["consultas", "Consultas"],
   ["bairros", "Bairros"],
@@ -69,7 +71,7 @@ function Admin() {
       <main className="mx-auto max-w-6xl px-6 py-10">
         {isAdmin.isLoading ? <p>Carregando...</p> : !isAdmin.data ? (
           <p className="text-muted-foreground">Sua conta não tem permissão de administrador.</p>
-        ) : aba === "dashboard" ? <Dashboard /> : aba === "imoveis" ? <Imoveis /> : aba === "leads" ? <Leads /> :
+        ) : aba === "dashboard" ? <Dashboard /> : aba === "imoveis" ? <Imoveis /> : aba === "carteira" ? <Carteira /> : aba === "leads" ? <Leads /> :
           aba === "consultas" ? <Consultas /> : aba === "bairros" ? <Bairros /> : <Perfil />}
       </main>
     </div>

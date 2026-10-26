@@ -27,7 +27,7 @@ function AuthPage() {
     e.preventDefault();
     setBusy(true); setMsg("");
     if (modo === "entrar") {
-      const { error } = await supabase.auth.signInWithPassword({ email, password: senha });
+      const { error } = await supabase.auth.signInWithPassword({ email: email.includes("@") ? email.trim() : `${email.trim()}@aurum.test`, password: senha });
       if (error) setMsg("E-mail ou senha inválidos.");
       else nav({ to: "/admin" });
     } else {
@@ -43,7 +43,7 @@ function AuthPage() {
       <form onSubmit={submit} className="w-full max-w-sm space-y-4 rounded-xl border bg-card p-8">
         <Link to="/" className="font-display text-2xl">Aurum<span className="text-gold">.</span></Link>
         <h1 className="text-3xl">{modo === "entrar" ? "Área do corretor" : "Criar conta"}</h1>
-        <input type="email" required placeholder="E-mail" value={email} onChange={(e) => setEmail(e.target.value)} className={input} />
+        <input type="text" required placeholder="E-mail ou usuário" value={email} onChange={(e) => setEmail(e.target.value)} className={input} />
         <input type="password" required minLength={6} placeholder="Senha" value={senha} onChange={(e) => setSenha(e.target.value)} className={input} />
         <button disabled={busy} className="h-12 w-full rounded-md bg-primary font-semibold text-primary-foreground disabled:opacity-60">
           {busy ? "Aguarde..." : modo === "entrar" ? "Entrar" : "Criar conta"}

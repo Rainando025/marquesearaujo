@@ -1,0 +1,1 @@
+alter table public.events add column ip text, add column pagina text, add column user_agent text;

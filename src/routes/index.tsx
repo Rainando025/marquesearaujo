@@ -27,7 +27,7 @@ export const Route = createFileRoute("/")({
 
 function useTrack() {
   const fn = useServerFn(trackEvent);
-  return (tipo: string, property_id?: string) => { fn({ data: { tipo, property_id } }).catch(() => {}); };
+  return (tipo: string, property_id?: string) => { fn({ data: { tipo, property_id, pagina: window.location.pathname + window.location.hash } }).catch(() => {}); };
 }
 
 function Card({ i, motivo, wa, onOpen }: { i: Property; motivo?: string; wa: string; onOpen: (p: Property) => void }) {

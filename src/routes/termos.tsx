@@ -16,7 +16,7 @@ const itens = [
   ["1. Informações dos imóveis", "Preços, metragens e disponibilidade são informativos e podem mudar sem aviso prévio. Confirme sempre com um corretor."],
   ["2. Intermediação", "A Aurum Imóveis atua como intermediadora, com corretores registrados no CRECI. Honorários seguem a tabela do conselho regional."],
   ["3. Imagens", "As fotos são ilustrativas e podem não representar exatamente o estado atual do imóvel."],
-  ["4. Privacidade (LGPD)", "Seus dados enviados por formulário ou WhatsApp são usados apenas para atendimento e não são compartilhados com terceiros sem consentimento."],
+  ["4. Privacidade (LGPD)", "Seus dados enviados por formulário ou WhatsApp são usados apenas para atendimento e não são compartilhados com terceiros sem consentimento. Registramos endereço IP, horário e páginas acessadas para estatísticas de visitas e segurança."],
   ["5. Visitas", "Visitas são agendadas previamente e acompanhadas por um corretor."],
 ];
 

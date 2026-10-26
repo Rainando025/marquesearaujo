@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { getRequestHeader } from "@tanstack/react-start/server";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -39,14 +40,16 @@ export const getSiteData = createServerFn({ method: "GET" }).handler(async () =>
 
 const TIPOS = new Set(["page_view", "property_view", "whatsapp_click", "property_click"]);
 export const trackEvent = createServerFn({ method: "POST" })
-  .inputValidator((d: { tipo: string; property_id?: string | null | undefined }) => {
+  .inputValidator((d: { tipo: string; property_id?: string | null | undefined; pagina?: string | undefined }) => {
     if (!TIPOS.has(d?.tipo)) throw new Error("tipo inválido");
     const pid = typeof d.property_id === "string" && /^[0-9a-f-]{36}$/.test(d.property_id) ? d.property_id : null;
-    return { tipo: d.tipo, property_id: pid };
+    return { tipo: d.tipo, property_id: pid, pagina: String(d.pagina ?? "/").slice(0, 200) };
   })
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    await supabaseAdmin.from("events").insert(data);
+    const ip = (getRequestHeader("cf-connecting-ip") || getRequestHeader("x-forwarded-for")?.split(",")[0] || getRequestHeader("x-real-ip") || "").trim().slice(0, 64) || null;
+    const user_agent = (getRequestHeader("user-agent") ?? "").slice(0, 300) || null;
+    await supabaseAdmin.from("events").insert({ ...data, ip, user_agent });
     return { ok: true };
   });
 

@@ -29,6 +29,13 @@
       "when": 1793014003465,
       "tag": "0003_portfolio",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793014166390,
+      "tag": "0004_events_ip",
+      "breakpoints": true
     }
   ]
 }

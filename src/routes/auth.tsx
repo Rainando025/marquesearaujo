@@ -32,7 +32,7 @@ function AuthPage() {
       else nav({ to: "/admin" });
     } else {
       const { error } = await supabase.auth.signUp({ email, password: senha, options: { emailRedirectTo: window.location.origin + "/admin" } });
-      setMsg(error ? error.message : "Conta criada! Confirme pelo link enviado ao seu e-mail.");
+      if (error) setMsg(error.message); else nav({ to: "/admin" });
     }
     setBusy(false);
   }

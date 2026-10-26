@@ -39,7 +39,7 @@ export const getSiteData = createServerFn({ method: "GET" }).handler(async () =>
 
 const TIPOS = new Set(["page_view", "property_view", "whatsapp_click", "property_click"]);
 export const trackEvent = createServerFn({ method: "POST" })
-  .inputValidator((d: { tipo: string; property_id?: string | null }) => {
+  .inputValidator((d: { tipo: string; property_id?: string | null | undefined }) => {
     if (!TIPOS.has(d?.tipo)) throw new Error("tipo inválido");
     const pid = typeof d.property_id === "string" && /^[0-9a-f-]{36}$/.test(d.property_id) ? d.property_id : null;
     return { tipo: d.tipo, property_id: pid };
@@ -51,7 +51,7 @@ export const trackEvent = createServerFn({ method: "POST" })
   });
 
 export const createLead = createServerFn({ method: "POST" })
-  .inputValidator((d: { nome: string; telefone: string; email?: string; interesse?: string; property_id?: string | null; origem?: string }) => {
+  .inputValidator((d: { nome: string; telefone: string; email?: string | undefined; interesse?: string | undefined; property_id?: string | null | undefined; origem?: string | undefined }) => {
     const nome = String(d?.nome ?? "").trim().slice(0, 120);
     const telefone = String(d?.telefone ?? "").trim().slice(0, 40);
     if (nome.length < 2 || telefone.length < 8) throw new Error("Informe nome e telefone.");

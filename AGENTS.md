@@ -12,3 +12,5 @@
 - Property catalog lives in the `properties` table; public reads go through `listProperties` server fn (publishable client), admin writes via browser client under RLS `has_role(admin)`. Why: one source of truth for landing page and admin.
 - Property photos go to the private `imoveis` bucket and are stored as long-lived signed URLs, because the workspace blocks public buckets.
 - AI recommendations run in `recommendProperties` server fn via Lovable AI Gateway Responses API with structured output; ids are filtered against the catalog. Why: keep key server-side and prevent invented listings.
+- Visitor writes (events, leads, recommendation query log) go through server fns using supabaseAdmin with validated input; tables have no anon policies. Why: avoid open public insert policies.
+- Site-wide broker data (name, WhatsApp, CRECI, photo) lives in the single-row `settings` table; neighborhoods in `neighborhoods` feed both admin form and site filter.

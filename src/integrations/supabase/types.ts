@@ -108,6 +108,48 @@ export type Database = {
         }
         Relationships: []
       }
+      portfolio: {
+        Row: {
+          bairro: string
+          created_at: string
+          data_entrada: string
+          id: string
+          negocio: string
+          notas: string
+          proprietario: string
+          status: string
+          tipo: string
+          titulo: string
+          valor: number
+        }
+        Insert: {
+          bairro?: string
+          created_at?: string
+          data_entrada?: string
+          id?: string
+          negocio?: string
+          notas?: string
+          proprietario?: string
+          status?: string
+          tipo?: string
+          titulo: string
+          valor?: number
+        }
+        Update: {
+          bairro?: string
+          created_at?: string
+          data_entrada?: string
+          id?: string
+          negocio?: string
+          notas?: string
+          proprietario?: string
+          status?: string
+          tipo?: string
+          titulo?: string
+          valor?: number
+        }
+        Relationships: []
+      }
       properties: {
         Row: {
           area: number

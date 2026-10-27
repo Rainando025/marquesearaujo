@@ -110,6 +110,59 @@ export function Dashboard() {
           )}
         </div>
       </div>
+      <Acessos />
+    </div>
+  );
+}
+
+const TIPO: Record<string, string> = { page_view: "Visita", property_view: "Viu imóvel", whatsapp_click: "Clique WhatsApp", property_click: "Clique imóvel" };
+
+function navegador(ua: string | null) {
+  if (!ua) return "—";
+  const disp = /Mobile|Android|iPhone/i.test(ua) ? "Celular" : "Computador";
+  const nav = /Edg\//.test(ua) ? "Edge" : /Chrome\//.test(ua) ? "Chrome" : /Firefox\//.test(ua) ? "Firefox" : /Safari\//.test(ua) ? "Safari" : "Outro";
+  return `${disp} · ${nav}`;
+}
+
+function Acessos() {
+  const [soVisitas, setSoVisitas] = useState(false);
+  const q = useQuery({
+    queryKey: ["acessos", soVisitas],
+    queryFn: async () => {
+      let r = supabase.from("events").select("id, tipo, ip, pagina, user_agent, created_at, properties(titulo)").order("created_at", { ascending: false }).limit(200);
+      if (soVisitas) r = r.eq("tipo", "page_view");
+      return (await r).data ?? [];
+    },
+  });
+  const ips = new Set((q.data ?? []).map((e) => e.ip).filter(Boolean));
+  return (
+    <div className="rounded-xl border bg-card p-5">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 className="text-2xl">Quem acessou o site</h2>
+          <p className="text-sm text-muted-foreground">Últimos 200 registros · {ips.size} IP(s) diferentes</p>
+        </div>
+        <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={soVisitas} onChange={(e) => setSoVisitas(e.target.checked)} />Só visitas</label>
+      </div>
+      <div className="max-h-[480px] overflow-auto">
+        <table className="w-full text-left text-sm">
+          <thead className="sticky top-0 bg-card text-muted-foreground">
+            <tr><th className="py-2 pr-4">Data e hora</th><th className="pr-4">IP</th><th className="pr-4">Ação</th><th className="pr-4">Página</th><th>Dispositivo</th></tr>
+          </thead>
+          <tbody className="divide-y">
+            {q.data?.map((e) => (
+              <tr key={e.id}>
+                <td className="whitespace-nowrap py-2 pr-4">{new Date(e.created_at).toLocaleString("pt-BR")}</td>
+                <td className="pr-4 font-mono text-xs">{e.ip ?? "—"}</td>
+                <td className="pr-4">{TIPO[e.tipo] ?? e.tipo}{e.properties?.titulo ? `: ${e.properties.titulo}` : ""}</td>
+                <td className="pr-4">{e.pagina ?? "/"}</td>
+                <td className="text-muted-foreground">{navegador(e.user_agent)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {q.data?.length === 0 && <p className="py-4 text-muted-foreground">Nenhum acesso registrado.</p>}
+      </div>
     </div>
   );
 }

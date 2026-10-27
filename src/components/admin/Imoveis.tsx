@@ -24,8 +24,7 @@ export function Imoveis() {
     queryFn: async () => (await supabase.from("neighborhoods").select("nome").order("nome")).data?.map((b) => b.nome) ?? [],
   });
   const [form, setForm] = useState<Form | null>(null);
-  const [capa, setCapa] = useState<File | null>(null);
-  const [extras, setExtras] = useState<File[]>([]);
+  const [enviando, setEnviando] = useState(false);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
 
@@ -36,13 +35,11 @@ export function Imoveis() {
     if (!form) return;
     setBusy(true); setMsg("");
     try {
-      const imagem_url = capa ? await uploadImage(capa) : form.imagem_url;
-      const novas = await Promise.all(extras.map((f) => uploadImage(f)));
       const { id, ...rest } = form;
-      const payload = { ...rest, imagem_url, fotos: [...rest.fotos, ...novas], preco: Number(rest.preco), quartos: Number(rest.quartos), banheiros: Number(rest.banheiros), area: Number(rest.area) };
+      const payload = { ...rest, imagem_url: fotosOrdem[0] ?? null, fotos: fotosOrdem.slice(1), preco: Number(rest.preco), quartos: Number(rest.quartos), banheiros: Number(rest.banheiros), area: Number(rest.area) };
       const r = id ? await supabase.from("properties").update(payload).eq("id", id) : await supabase.from("properties").insert(payload);
       if (r.error) throw r.error;
-      setForm(null); setCapa(null); setExtras([]);
+      setForm(null);
       refresh();
     } catch (err) {
       setMsg((err as Error).message || "Erro ao salvar.");
@@ -58,7 +55,28 @@ export function Imoveis() {
 
   const input = "h-11 w-full rounded-md border border-input bg-background px-3 text-sm";
   const set = (k: keyof Form, v: unknown) => setForm((f) => (f ? { ...f, [k]: v } : f));
-  const abrir = (f: Form) => { setForm(f); setCapa(null); setExtras([]); setMsg(""); window.scrollTo({ top: 0, behavior: "smooth" }); };
+  const fotosOrdem = form ? [form.imagem_url, ...form.fotos].filter((x): x is string => !!x) : [];
+  const setFotos = (l: string[]) => setForm((f) => (f ? { ...f, imagem_url: l[0] ?? null, fotos: l.slice(1) } : f));
+  const mover = (n: number, d: number) => {
+    const l = [...fotosOrdem];
+    const [x] = l.splice(n, 1);
+    l.splice(n + d, 0, x!);
+    setFotos(l);
+  };
+  async function adicionarFotos(files: File[]) {
+    if (!files.length) return;
+    setEnviando(true); setMsg("");
+    try {
+      const urls = await Promise.all(files.map((f) => uploadImage(f)));
+      setForm((f) => {
+        if (!f) return f;
+        const l = [f.imagem_url, ...f.fotos, ...urls].filter((x): x is string => !!x);
+        return { ...f, imagem_url: l[0] ?? null, fotos: l.slice(1) };
+      });
+    } catch (err) { setMsg((err as Error).message || "Erro ao enviar fotos."); }
+    setEnviando(false);
+  }
+  const abrir = (f: Form) => { setForm(f); setMsg(""); window.scrollTo({ top: 0, behavior: "smooth" }); };
 
   return (
     <>
@@ -86,27 +104,31 @@ export function Imoveis() {
           <label className="text-sm">Quartos<input type="number" min={0} value={form.quartos} onChange={(e) => set("quartos", e.target.value)} className={input} /></label>
           <label className="text-sm">Banheiros<input type="number" min={0} value={form.banheiros} onChange={(e) => set("banheiros", e.target.value)} className={input} /></label>
           <label className="text-sm sm:col-span-2">Descrição<textarea value={form.descricao ?? ""} onChange={(e) => set("descricao", e.target.value)} className="min-h-20 w-full rounded-md border border-input bg-background p-3 text-sm" /></label>
-          <div className="text-sm">
-            <p>Foto de capa</p>
-            {form.imagem_url && !capa && <img src={form.imagem_url} alt="" className="my-2 h-24 w-36 rounded-md object-cover" />}
-            <input type="file" accept="image/*" onChange={(e) => setCapa(e.target.files?.[0] ?? null)} className="block w-full text-sm" />
-          </div>
-          <div className="text-sm">
-            <p>Galeria de fotos</p>
-            <div className="my-2 flex flex-wrap gap-2">
-              {form.fotos.map((f) => (
-                <div key={f} className="relative">
-                  <img src={f} alt="" className="h-16 w-24 rounded-md object-cover" />
-                  <button type="button" aria-label="Remover foto" onClick={() => set("fotos", form.fotos.filter((x) => x !== f))} className="absolute -right-2 -top-2 rounded-full bg-card p-1 shadow"><X className="h-3 w-3" /></button>
+          <div className="text-sm sm:col-span-2">
+            <p className="font-semibold">Fotos ({fotosOrdem.length})</p>
+            <p className="text-xs text-muted-foreground">A primeira foto é a capa. Use as setas para mudar a ordem.</p>
+            <div className="my-3 flex flex-wrap gap-3">
+              {fotosOrdem.map((f, n) => (
+                <div key={f + n} className="relative w-32">
+                  <img src={f} alt="" className={`h-20 w-32 rounded-md object-cover ${n === 0 ? "ring-2 ring-gold" : ""}`} />
+                  {n === 0 && <span className="absolute left-1 top-1 rounded bg-card px-1 text-[10px] font-semibold">CAPA</span>}
+                  <button type="button" aria-label="Remover foto" onClick={() => setFotos(fotosOrdem.filter((_, i) => i !== n))} className="absolute -right-2 -top-2 rounded-full bg-card p-1 shadow"><X className="h-3 w-3" /></button>
+                  <div className="mt-1 flex justify-between">
+                    <button type="button" aria-label="Mover para a esquerda" disabled={n === 0} onClick={() => mover(n, -1)} className="rounded border px-2 disabled:opacity-30">←</button>
+                    {n > 0 && <button type="button" onClick={() => mover(n, -n)} className="rounded border px-1 text-[10px]">Capa</button>}
+                    <button type="button" aria-label="Mover para a direita" disabled={n === fotosOrdem.length - 1} onClick={() => mover(n, 1)} className="rounded border px-2 disabled:opacity-30">→</button>
+                  </div>
                 </div>
               ))}
             </div>
-            <input type="file" accept="image/*" multiple onChange={(e) => setExtras(Array.from(e.target.files ?? []))} className="block w-full text-sm" />
-            {extras.length > 0 && <p className="text-xs text-muted-foreground">{extras.length} nova(s) foto(s) para enviar</p>}
+            <label className="inline-block cursor-pointer rounded-md border px-4 py-2">
+              {enviando ? "Enviando fotos..." : "+ Adicionar fotos"}
+              <input type="file" accept="image/*" multiple disabled={enviando} onChange={(e) => { adicionarFotos(Array.from(e.target.files ?? [])); e.target.value = ""; }} className="hidden" />
+            </label>
           </div>
           <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.ativo} onChange={(e) => set("ativo", e.target.checked)} />Visível no site</label>
           <div className="flex gap-3 sm:col-span-2">
-            <button disabled={busy} className="rounded-md bg-primary px-5 py-3 font-semibold text-primary-foreground disabled:opacity-60">{busy ? "Salvando..." : "Salvar"}</button>
+            <button disabled={busy || enviando} className="rounded-md bg-primary px-5 py-3 font-semibold text-primary-foreground disabled:opacity-60">{busy ? "Salvando..." : "Salvar"}</button>
             <button type="button" onClick={() => setForm(null)} className="rounded-md border px-5 py-3">Cancelar</button>
           </div>
           {msg && <p className="text-sm text-destructive sm:col-span-2">{msg}</p>}

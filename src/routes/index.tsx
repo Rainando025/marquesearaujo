@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Search, MapPin, BedDouble, Bath, Maximize, MessageCircle, Sparkles, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, MapPin, BedDouble, Bath, Maximize, MessageCircle, Sparkles, X, ChevronLeft, ChevronRight, Menu } from "lucide-react";
 import hero from "@/assets/hero.jpg";
 import { waLink, brl } from "@/lib/site";
 import {
@@ -205,6 +205,7 @@ function Index() {
   const [quartos, setQuartos] = useState(0);
   const [max, setMax] = useState(0);
   const [aberto, setAberto] = useState<Property | null>(null);
+  const [menu, setMenu] = useState(false);
 
   useEffect(() => { track("page_view"); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -229,9 +230,17 @@ function Index() {
             <a href="#imoveis" className="hidden sm:inline hover:text-gold">Imóveis</a>
             <a href="#recomendar" className="hidden sm:inline hover:text-gold">Recomendação</a>
             <Link to="/termos" className="hidden sm:inline hover:text-gold">Termos</Link>
+            <button aria-label="Menu" onClick={() => setMenu(!menu)} className="rounded-full p-2 sm:hidden"><Menu className="h-6 w-6" /></button>
             <a onClick={() => track("whatsapp_click")} href={waLink(wa, "Olá! Gostaria de falar com um corretor.")} target="_blank" rel="noreferrer" className="rounded-full bg-whatsapp px-4 py-2 font-semibold text-primary-foreground">WhatsApp</a>
           </nav>
         </div>
+        {menu && (
+          <div className="mx-4 flex flex-col rounded-xl bg-card p-2 text-foreground shadow-xl sm:hidden">
+            <a href="#imoveis" onClick={() => setMenu(false)} className="rounded-md px-4 py-3">Imóveis</a>
+            <a href="#recomendar" onClick={() => setMenu(false)} className="rounded-md px-4 py-3">Recomendação</a>
+            <Link to="/termos" className="rounded-md px-4 py-3">Termos</Link>
+          </div>
+        )}
       </header>
 
       <section className="relative flex min-h-[88vh] items-end">

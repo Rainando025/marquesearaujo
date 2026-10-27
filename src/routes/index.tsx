@@ -100,8 +100,8 @@ function Detalhe({ p, wa, onClose }: { p: Property; wa: string; onClose: () => v
   const [idx, setIdx] = useState(0);
   const track = useTrack();
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/60 p-4" onClick={onClose}>
-      <div className="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-xl bg-card" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/60 p-0 sm:items-center sm:p-4" onClick={onClose}>
+      <div className="max-h-[95vh] w-full max-w-3xl overflow-y-auto rounded-t-xl bg-card sm:rounded-xl" onClick={(e) => e.stopPropagation()}>
         <div className="relative">
           <img src={fotos[idx]} alt={p.titulo} className="aspect-video w-full object-cover" />
           {fotos.length > 1 && (
@@ -122,9 +122,9 @@ function Detalhe({ p, wa, onClose }: { p: Property; wa: string; onClose: () => v
             ))}
           </div>
         )}
-        <div className="space-y-4 p-6">
+        <div className="space-y-4 p-4 sm:p-6">
           <p className="flex items-center gap-1 text-sm text-muted-foreground"><MapPin className="h-4 w-4" />{p.bairro} · {p.tipo} · {p.negocio}</p>
-          <h3 className="text-3xl">{p.titulo}</h3>
+          <h3 className="text-2xl sm:text-3xl">{p.titulo}</h3>
           <p className="font-display text-3xl text-primary">{brl(Number(p.preco))}{p.negocio === "Aluguel" && <span className="text-sm text-muted-foreground">/mês</span>}</p>
           <p className="text-muted-foreground">{p.quartos} quartos · {p.banheiros} banheiros · {p.area} m²</p>
           {p.descricao && <p className="leading-relaxed">{p.descricao}</p>}
@@ -160,9 +160,9 @@ function Recomendador({ imoveis, wa, onOpen }: { imoveis: Property[]; wa: string
 
   return (
     <section id="recomendar" className="bg-secondary">
-      <div className="mx-auto max-w-7xl px-6 py-20">
+      <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20">
         <p className="text-sm uppercase tracking-[0.3em] text-muted-foreground">Recomendação inteligente</p>
-        <h2 className="mt-2 text-4xl md:text-5xl">Conte o que você procura</h2>
+        <h2 className="mt-2 text-3xl sm:text-4xl md:text-5xl">Conte o que você procura</h2>
         <form onSubmit={enviar} className="mt-8 flex flex-col gap-3 md:flex-row">
           <textarea value={texto} onChange={(e) => setTexto(e.target.value)} required minLength={3} maxLength={1500}
             placeholder="Ex.: 2 quartos para alugar perto da praia, até R$ 3.000, aceita pet"
@@ -223,9 +223,9 @@ function Index() {
   return (
     <div className="min-h-screen">
       <header className="absolute inset-x-0 top-0 z-20">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6 text-primary-foreground">
-          <span className="font-display text-2xl">{empresa}<span className="text-gold">.</span></span>
-          <nav className="flex items-center gap-6 text-sm">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-5 text-primary-foreground sm:px-6 sm:py-6">
+          <span className="min-w-0 truncate font-display text-xl sm:text-2xl">{empresa}<span className="text-gold">.</span></span>
+          <nav className="flex shrink-0 items-center gap-4 text-sm lg:gap-6">
             <a href="#imoveis" className="hidden sm:inline hover:text-gold">Imóveis</a>
             <a href="#recomendar" className="hidden sm:inline hover:text-gold">Recomendação</a>
             <Link to="/termos" className="hidden sm:inline hover:text-gold">Termos</Link>
@@ -237,9 +237,9 @@ function Index() {
       <section className="relative flex min-h-[88vh] items-end">
         <img src={hero} alt="Sala de apartamento aconchegante com varanda" width={1920} height={1088} className="absolute inset-0 h-full w-full object-cover" />
         <div className="hero-overlay absolute inset-0" />
-        <div className="relative mx-auto w-full max-w-7xl px-6 pb-20 text-primary-foreground">
+        <div className="relative mx-auto w-full max-w-7xl px-4 pb-14 pt-28 text-primary-foreground sm:px-6 sm:pb-20">
           <p className="text-sm uppercase tracking-[0.3em] text-gold">Comprar ou alugar</p>
-          <h1 className="mt-4 max-w-3xl text-5xl leading-tight md:text-7xl">O lar certo para a sua família, no preço certo.</h1>
+          <h1 className="mt-4 max-w-3xl text-4xl leading-tight sm:text-5xl md:text-7xl">O lar certo para a sua família, no preço certo.</h1>
           <div className="mt-10 flex max-w-2xl gap-2 rounded-xl bg-card p-2 shadow-2xl">
             <div className="flex flex-1 items-center gap-2 px-3 text-foreground">
               <Search className="h-5 w-5 text-muted-foreground" />
@@ -250,13 +250,13 @@ function Index() {
         </div>
       </section>
 
-      <section id="imoveis" className="mx-auto max-w-7xl px-6 py-20">
+      <section id="imoveis" className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20">
         <div className="flex flex-wrap items-end justify-between gap-4">
-          <h2 className="text-4xl md:text-5xl">Imóveis disponíveis</h2>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl">Imóveis disponíveis</h2>
           <span className="text-muted-foreground">{lista.length} resultado(s)</span>
         </div>
-        <div className="mt-8 grid gap-3 rounded-xl border bg-card p-4 sm:grid-cols-3 lg:grid-cols-6">
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Pesquisar..." className={sel} />
+        <div className="mt-8 grid grid-cols-2 gap-3 rounded-xl border bg-card p-3 sm:grid-cols-3 sm:p-4 lg:grid-cols-6">
+          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Pesquisar..." className={`${sel} col-span-2 sm:col-span-1`} />
           <select value={bairro} onChange={(e) => setBairro(e.target.value)} className={sel}>
             <option value="Todos">Bairro: todos</option>
             {bairros.map((b) => <option key={b}>{b}</option>)}
@@ -278,7 +278,7 @@ function Index() {
             <option value={800000}>Até R$ 800 mil</option>
           </select>
         </div>
-        <div className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-10 grid gap-6 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3 2xl:grid-cols-4">
           {lista.map((i) => <Card key={i.id} i={i} wa={wa} onOpen={abrir} />)}
           {!lista.length && <p className="text-muted-foreground">Nenhum imóvel encontrado com esses filtros.</p>}
         </div>
@@ -287,7 +287,7 @@ function Index() {
       <Recomendador imoveis={imoveis} wa={wa} onOpen={abrir} />
 
       {settings?.nome_corretor && (
-        <section className="mx-auto flex max-w-7xl flex-col items-center gap-8 px-6 py-20 md:flex-row">
+        <section className="mx-auto flex max-w-7xl flex-col items-center gap-8 px-4 py-14 text-center sm:px-6 sm:py-20 md:flex-row md:text-left">
           {settings.foto_url && <img src={settings.foto_url} alt={settings.nome_corretor} className="h-48 w-48 rounded-full object-cover" />}
           <div>
             <p className="text-sm uppercase tracking-[0.3em] text-muted-foreground">Seu corretor</p>
@@ -299,13 +299,13 @@ function Index() {
       )}
 
       <section className="bg-primary text-primary-foreground">
-        <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 px-6 py-16 md:flex-row md:items-center">
-          <h2 className="max-w-xl text-4xl">Não encontrou o imóvel ideal? Nós buscamos para você.</h2>
+        <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 px-4 py-12 sm:px-6 sm:py-16 md:flex-row md:items-center">
+          <h2 className="max-w-xl text-3xl sm:text-4xl">Não encontrou o imóvel ideal? Nós buscamos para você.</h2>
           <a onClick={() => track("whatsapp_click")} href={waLink(wa, "Olá! Quero ajuda para encontrar um imóvel.")} target="_blank" rel="noreferrer" className="rounded-full bg-gold px-8 py-4 font-semibold text-accent-foreground">Falar no WhatsApp</a>
         </div>
       </section>
 
-      <footer className="mx-auto flex max-w-7xl flex-wrap justify-between gap-4 px-6 py-10 text-sm text-muted-foreground">
+      <footer className="mx-auto flex max-w-7xl flex-col justify-between gap-4 px-4 py-10 pb-24 sm:flex-row sm:flex-wrap sm:px-6 sm:pb-10 text-sm text-muted-foreground">
         <span>© 2026 {empresa}{settings?.creci ? ` · CRECI ${settings.creci}` : ""}{settings?.email ? ` · ${settings.email}` : ""}</span>
         <div className="flex gap-4">
           <Link to="/termos" className="hover:text-foreground">Termos de uso e privacidade</Link>

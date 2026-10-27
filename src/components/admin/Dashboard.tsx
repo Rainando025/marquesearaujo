@@ -63,11 +63,11 @@ export function Dashboard() {
           <option value={7}>Últimos 7 dias</option><option value={30}>Últimos 30 dias</option><option value={90}>Últimos 90 dias</option>
         </select>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5">
         {cards.map(([l, v]) => (
-          <div key={l} className="rounded-xl border bg-card p-5">
+          <div key={l} className="min-w-0 rounded-xl border bg-card p-4 sm:p-5">
             <p className="text-sm text-muted-foreground">{l}</p>
-            <p className="mt-2 font-display text-4xl">{v}</p>
+            <p className="mt-2 font-display text-3xl sm:text-4xl">{v}</p>
           </div>
         ))}
       </div>

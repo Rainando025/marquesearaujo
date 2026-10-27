@@ -80,8 +80,8 @@ export function Imoveis() {
 
   return (
     <>
-      <div className="flex items-center justify-between">
-        <h1 className="text-4xl">Imóveis</h1>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-3xl sm:text-4xl">Imóveis</h1>
         <button onClick={() => abrir({ ...vazio, bairro: bairros.data?.[0] ?? "" })} className="rounded-md bg-primary px-5 py-3 font-semibold text-primary-foreground">+ Novo imóvel</button>
       </div>
 

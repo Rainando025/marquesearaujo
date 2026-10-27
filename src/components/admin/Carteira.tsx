@@ -70,14 +70,14 @@ export function Carteira() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-4xl">Carteira</h1>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-3xl sm:text-4xl">Carteira</h1>
         <button onClick={() => { setForm(vazio()); setMsg(""); }} className="rounded-md bg-primary px-5 py-3 font-semibold text-primary-foreground">+ Adicionar à carteira</button>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         {resumo.map(([l, v]) => (
-          <div key={l} className="rounded-xl border bg-card p-5"><p className="text-sm text-muted-foreground">{l}</p><p className="mt-2 font-display text-3xl">{v}</p></div>
+          <div key={l} className="rounded-xl border bg-card p-5"><p className="text-sm text-muted-foreground">{l}</p><p className="mt-2 break-words font-display text-xl sm:text-3xl">{v}</p></div>
         ))}
       </div>
 

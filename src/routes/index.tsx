@@ -231,7 +231,7 @@ function Index() {
             <a href="#recomendar" className="hidden sm:inline hover:text-gold">Recomendação</a>
             <Link to="/termos" className="hidden sm:inline hover:text-gold">Termos</Link>
             <button aria-label="Menu" onClick={() => setMenu(!menu)} className="rounded-full p-2 sm:hidden"><Menu className="h-6 w-6" /></button>
-            <a onClick={() => track("whatsapp_click")} href={waLink(wa, "Olá! Gostaria de falar com um corretor.")} target="_blank" rel="noreferrer" className="rounded-full bg-whatsapp px-4 py-2 font-semibold text-primary-foreground">WhatsApp</a>
+            <a onClick={() => track("whatsapp_click")} href={waLink(wa, "Olá! Gostaria de falar com um corretor.")} target="_blank" rel="noreferrer" aria-label="WhatsApp" className="flex items-center gap-2 rounded-full bg-whatsapp p-2 font-semibold text-primary-foreground sm:px-4 sm:py-2"><MessageCircle className="h-5 w-5" /><span className="hidden sm:inline">WhatsApp</span></a>
           </nav>
         </div>
         {menu && (

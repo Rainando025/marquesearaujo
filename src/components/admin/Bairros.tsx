@@ -28,8 +28,8 @@ export function Bairros() {
       <h1 className="text-4xl">Bairros</h1>
       <p className="text-muted-foreground">Estes bairros aparecem no cadastro de imóveis e no filtro do site.</p>
       <form onSubmit={add} className="flex gap-2">
-        <input required value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Nome do bairro" className="h-11 flex-1 rounded-md border border-input bg-background px-3 text-sm" />
-        <button className="rounded-md bg-primary px-5 text-sm font-semibold text-primary-foreground">Adicionar</button>
+        <input required value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Nome do bairro" className="h-11 min-w-0 flex-1 rounded-md border border-input bg-background px-3 text-sm" />
+        <button className="shrink-0 rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground">Adicionar</button>
       </form>
       {erro && <p className="text-sm text-destructive">{erro}</p>}
       <ul className="divide-y rounded-xl border bg-card">

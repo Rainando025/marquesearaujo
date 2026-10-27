@@ -38,7 +38,7 @@ export function Leads() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-4xl">Leads e clientes</h1>
-        <div className="flex gap-2 text-sm">
+        <div className="flex flex-wrap gap-2 text-sm">
           {[["todos", "Todos"], ...STATUS].map(([k, l]) => (
             <button key={k} onClick={() => setFiltro(k)} className={`rounded-full border px-3 py-1 ${filtro === k ? "bg-primary text-primary-foreground" : ""}`}>
               {l} ({k === "todos" ? q.data?.length ?? 0 : q.data?.filter((x) => x.status === k).length ?? 0})

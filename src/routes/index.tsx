@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Search, MapPin, BedDouble, Bath, Maximize, MessageCircle, Sparkles, X } from "lucide-react";
+import { Search, MapPin, BedDouble, Bath, Maximize, MessageCircle, Sparkles, X, ChevronLeft, ChevronRight } from "lucide-react";
 import hero from "@/assets/hero.jpg";
 import { waLink, brl } from "@/lib/site";
 import {
@@ -30,15 +30,27 @@ function useTrack() {
   return (tipo: string, property_id?: string) => { fn({ data: { tipo, property_id, pagina: window.location.pathname + window.location.hash } }).catch(() => {}); };
 }
 
-function Card({ i, motivo, wa, onOpen }: { i: Property; motivo?: string; wa: string; onOpen: (p: Property) => void }) {
+function Card({ i, motivo, wa, onOpen }: { i: Property; motivo?: string | undefined; wa: string; onOpen: (p: Property) => void }) {
   const track = useTrack();
+  const fotos = [i.imagem_url || "/images/hero.jpg", ...i.fotos];
+  const [idx, setIdx] = useState(0);
   return (
     <article className="group overflow-hidden rounded-xl border bg-card transition hover:-translate-y-1 hover:shadow-xl">
-      <button onClick={() => onOpen(i)} className="relative block aspect-[4/3] w-full overflow-hidden">
-        <img src={i.imagem_url || "/images/hero.jpg"} alt={i.titulo} loading="lazy" width={1024} height={768} className="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
+      <div className="relative aspect-[4/3] w-full overflow-hidden">
+        <button onClick={() => onOpen(i)} className="block h-full w-full" aria-label={`Ver ${i.titulo}`}>
+          <img src={fotos[idx]} alt={i.titulo} loading="lazy" width={1024} height={768} className="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
+        </button>
         <span className="absolute left-3 top-3 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">{i.negocio}</span>
-        {i.fotos.length > 0 && <span className="absolute bottom-3 right-3 rounded-full bg-card px-3 py-1 text-xs">+{i.fotos.length} fotos</span>}
-      </button>
+        {fotos.length > 1 && (
+          <>
+            <button aria-label="Foto anterior" onClick={() => setIdx((idx - 1 + fotos.length) % fotos.length)} className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-card/90 p-1.5 shadow"><ChevronLeft className="h-4 w-4" /></button>
+            <button aria-label="Próxima foto" onClick={() => setIdx((idx + 1) % fotos.length)} className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-card/90 p-1.5 shadow"><ChevronRight className="h-4 w-4" /></button>
+            <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1">
+              {fotos.map((_, n) => <span key={n} className={`h-1.5 w-1.5 rounded-full ${n === idx ? "bg-card" : "bg-card/50"}`} />)}
+            </div>
+          </>
+        )}
+      </div>
       <div className="p-5">
         <p className="flex items-center gap-1 text-sm text-muted-foreground"><MapPin className="h-4 w-4" />{i.bairro}</p>
         <button onClick={() => onOpen(i)} className="mt-1 text-left font-display text-2xl hover:underline">{i.titulo}</button>
@@ -92,6 +104,13 @@ function Detalhe({ p, wa, onClose }: { p: Property; wa: string; onClose: () => v
       <div className="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-xl bg-card" onClick={(e) => e.stopPropagation()}>
         <div className="relative">
           <img src={fotos[idx]} alt={p.titulo} className="aspect-video w-full object-cover" />
+          {fotos.length > 1 && (
+            <>
+              <button aria-label="Foto anterior" onClick={() => setIdx((idx - 1 + fotos.length) % fotos.length)} className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-card/90 p-2 shadow"><ChevronLeft className="h-5 w-5" /></button>
+              <button aria-label="Próxima foto" onClick={() => setIdx((idx + 1) % fotos.length)} className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-card/90 p-2 shadow"><ChevronRight className="h-5 w-5" /></button>
+              <span className="absolute bottom-3 right-3 rounded-full bg-card px-3 py-1 text-xs">{idx + 1} / {fotos.length}</span>
+            </>
+          )}
           <button onClick={onClose} aria-label="Fechar" className="absolute right-3 top-3 rounded-full bg-card p-2"><X className="h-5 w-5" /></button>
         </div>
         {fotos.length > 1 && (

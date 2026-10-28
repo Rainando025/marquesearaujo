@@ -8,5 +8,3 @@
 - [x] Nome "Aurum" substituído pelo nome cadastrado pelo admin
 - [x] Corrigir abertura do WhatsApp
 - [x] Trocar e-mail e senha do admin no painel
-- [ ] Remover cadastro público e impedir novas inscrições
-- [ ] Upload de logo no perfil e exibição junto ao nome na landing page

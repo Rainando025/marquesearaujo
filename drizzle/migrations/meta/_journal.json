@@ -36,13 +36,6 @@
       "when": 1793014166390,
       "tag": "0004_events_ip",
       "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1793186468540,
-      "tag": "0005_add_company_logo",
-      "breakpoints": true
     }
   ]
 }

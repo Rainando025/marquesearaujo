@@ -10,6 +10,8 @@ export const Route = createFileRoute("/termos")({
       { name: "description", content: `Termos de uso e política de privacidade da ${nomeEmpresa(loaderData)}.` },
       { property: "og:title", content: `Termos de Uso — ${nomeEmpresa(loaderData)}` },
       { property: "og:description", content: `Termos de uso e política de privacidade da ${nomeEmpresa(loaderData)}.` },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Termos,

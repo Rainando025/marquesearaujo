@@ -19,6 +19,8 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "Apartamentos e casas para comprar ou alugar. Busque, filtre, receba recomendações e fale com um corretor pelo WhatsApp." },
       { property: "og:title", content: `${nomeEmpresa(loaderData)} — Seu próximo lar` },
       { property: "og:description", content: "Apartamentos e casas para comprar ou alugar, com atendimento pelo WhatsApp." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData(siteQuery),
@@ -225,7 +227,10 @@ function Index() {
     <div className="min-h-screen">
       <header className="absolute inset-x-0 top-0 z-20">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-5 text-primary-foreground sm:px-6 sm:py-6">
-          <span className="min-w-0 truncate font-display text-xl sm:text-2xl">{empresa}<span className="text-gold">.</span></span>
+          <a href="#" className="flex min-w-0 items-center gap-3 font-display text-xl sm:text-2xl">
+            {settings?.logo_url && <img src={settings.logo_url} alt={`Logo ${empresa}`} className="h-12 w-12 shrink-0 object-contain sm:h-14 sm:w-14" />}
+            <span className="min-w-0 break-words">{empresa}<span className="text-gold">.</span></span>
+          </a>
           <nav className="flex shrink-0 items-center gap-4 text-sm lg:gap-6">
             <a href="#imoveis" className="hidden sm:inline hover:text-gold">Imóveis</a>
             <a href="#recomendar" className="hidden sm:inline hover:text-gold">Recomendação</a>

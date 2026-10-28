@@ -1,23 +1,23 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Search, MapPin, BedDouble, Bath, Maximize, MessageCircle, Sparkles, X, ChevronLeft, ChevronRight, Menu } from "lucide-react";
 import hero from "@/assets/hero.jpg";
 import { waLink, brl } from "@/lib/site";
 import {
-  getSiteData, recommendProperties, trackEvent, createLead,
+  recommendProperties, trackEvent, createLead,
   type Property, type Recommendation,
 } from "@/lib/properties.functions";
 
-const siteQuery = queryOptions({ queryKey: ["properties"], queryFn: () => getSiteData() });
+import { siteQuery, nomeEmpresa } from "@/lib/site-query";
 
 export const Route = createFileRoute("/")({
-  head: () => ({
+  head: ({ loaderData }) => ({
     meta: [
-      { title: "Aurum Imóveis — Seu próximo lar em Salvador" },
+      { title: `${nomeEmpresa(loaderData)} — Seu próximo lar` },
       { name: "description", content: "Apartamentos e casas para comprar ou alugar. Busque, filtre, receba recomendações e fale com um corretor pelo WhatsApp." },
-      { property: "og:title", content: "Aurum Imóveis — Seu próximo lar" },
+      { property: "og:title", content: `${nomeEmpresa(loaderData)} — Seu próximo lar` },
       { property: "og:description", content: "Apartamentos e casas para comprar ou alugar, com atendimento pelo WhatsApp." },
     ],
   }),
@@ -196,7 +196,7 @@ function Index() {
   const { data } = useSuspenseQuery(siteQuery);
   const { imoveis, settings, bairros } = data;
   const wa = settings?.whatsapp ?? "";
-  const empresa = settings?.nome_empresa || "Aurum Imóveis";
+  const empresa = nomeEmpresa(data);
   const track = useTrack();
   const [q, setQ] = useState("");
   const [bairro, setBairro] = useState("Todos");

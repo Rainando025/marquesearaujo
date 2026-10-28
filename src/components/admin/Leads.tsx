@@ -61,7 +61,7 @@ export function Leads() {
             <div>
               <p className="font-semibold">{l.nome}</p>
               <p className="text-sm text-muted-foreground">
-                {l.telefone && <a className="underline" href={`https://wa.me/${l.telefone.replace(/\D/g, "").replace(/^(?!55)/, "55")}`} target="_blank" rel="noreferrer">{l.telefone}</a>}
+                {l.telefone && <a className="underline" href={`https://api.whatsapp.com/send?phone=${l.telefone.replace(/\D/g, "").replace(/^(?!55)/, "55")}`} target="_blank" rel="noreferrer">{l.telefone}</a>}
                 {l.email && ` · ${l.email}`}
               </p>
               <p className="text-xs text-muted-foreground">{new Date(l.created_at).toLocaleString("pt-BR")} · {ORIGEM[l.origem] ?? l.origem}</p>

@@ -238,6 +238,7 @@ export type Database = {
           email: string
           foto_url: string | null
           id: number
+          logo_url: string | null
           nome_corretor: string
           nome_empresa: string
           updated_at: string
@@ -249,6 +250,7 @@ export type Database = {
           email?: string
           foto_url?: string | null
           id?: number
+          logo_url?: string | null
           nome_corretor?: string
           nome_empresa?: string
           updated_at?: string
@@ -260,6 +262,7 @@ export type Database = {
           email?: string
           foto_url?: string | null
           id?: number
+          logo_url?: string | null
           nome_corretor?: string
           nome_empresa?: string
           updated_at?: string

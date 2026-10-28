@@ -2,20 +2,22 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { siteQuery, nomeEmpresa } from "@/lib/site-query";
 import { Dashboard } from "@/components/admin/Dashboard";
 import { Imoveis } from "@/components/admin/Imoveis";
 import { Leads } from "@/components/admin/Leads";
 import { Consultas } from "@/components/admin/Consultas";
 import { Bairros } from "@/components/admin/Bairros";
 import { Carteira } from "@/components/admin/Carteira";
+import { Conta } from "@/components/admin/Conta";
 import { Perfil } from "@/components/admin/Perfil";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
     meta: [
-      { title: "Painel — Aurum Imóveis" },
+      { title: "Painel do corretor" },
       { name: "description", content: "Gerencie imóveis, leads e resultados." },
-      { property: "og:title", content: "Painel — Aurum Imóveis" },
+      { property: "og:title", content: "Painel do corretor" },
       { property: "og:description", content: "Gerencie imóveis, leads e resultados." },
       { name: "robots", content: "noindex" },
     ],
@@ -39,6 +41,7 @@ function Admin() {
   const nav = useNavigate();
   const { user } = Route.useRouteContext();
   const [aba, setAba] = useState<Aba>("dashboard");
+  const site = useQuery(siteQuery);
   const isAdmin = useQuery({
     queryKey: ["is-admin", user.id],
     queryFn: async () => (await supabase.rpc("has_role", { _user_id: user.id, _role: "admin" })).data === true,
@@ -54,7 +57,7 @@ function Admin() {
     <div className="min-h-screen">
       <header className="border-b bg-card">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-4 sm:px-6">
-          <Link to="/" className="font-display text-2xl">Aurum<span className="text-gold">.</span> <span className="text-sm text-muted-foreground">painel</span></Link>
+          <Link to="/" className="min-w-0 truncate font-display text-xl sm:text-2xl">{nomeEmpresa(site.data)}<span className="text-gold">.</span> <span className="text-sm text-muted-foreground">painel</span></Link>
           <div className="flex items-center gap-4 text-sm">
             <span className="hidden text-muted-foreground sm:inline">{user.email}</span>
             <button onClick={sair} className="rounded-md border px-3 py-2">Sair</button>
@@ -72,7 +75,7 @@ function Admin() {
         {isAdmin.isLoading ? <p>Carregando...</p> : !isAdmin.data ? (
           <p className="text-muted-foreground">Sua conta não tem permissão de administrador.</p>
         ) : aba === "dashboard" ? <Dashboard /> : aba === "imoveis" ? <Imoveis /> : aba === "carteira" ? <Carteira /> : aba === "leads" ? <Leads /> :
-          aba === "consultas" ? <Consultas /> : aba === "bairros" ? <Bairros /> : <Perfil />}
+          aba === "consultas" ? <Consultas /> : aba === "bairros" ? <Bairros /> : <><Perfil /><Conta emailAtual={user.email ?? ""} /></>}
       </main>
     </div>
   );

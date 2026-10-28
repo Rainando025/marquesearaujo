@@ -4,3 +4,7 @@
 - [x] Aba Carteira + acesso de teste admin
 - [x] Lista de acessos com IP, hora e página
 - [x] Rolagem de fotos nos cards + upload/ordenação de fotos no painel
+- [x] Responsividade total
+- [x] Nome "Aurum" substituído pelo nome cadastrado pelo admin
+- [x] Corrigir abertura do WhatsApp
+- [x] Trocar e-mail e senha do admin no painel

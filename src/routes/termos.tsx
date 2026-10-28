@@ -34,7 +34,7 @@ function Termos() {
         {itens.map(([t, d]) => (
           <section key={t}>
             <h2 className="text-2xl">{t}</h2>
-            <p className="mt-2 leading-relaxed text-muted-foreground">{d.replace("{EMPRESA}", empresa)}</p>
+            <p className="mt-2 leading-relaxed text-muted-foreground">{d?.replace("{EMPRESA}", empresa)}</p>
           </section>
         ))}
       </div>

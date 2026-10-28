@@ -9,6 +9,7 @@ import { Leads } from "@/components/admin/Leads";
 import { Consultas } from "@/components/admin/Consultas";
 import { Bairros } from "@/components/admin/Bairros";
 import { Carteira } from "@/components/admin/Carteira";
+import { Conta } from "@/components/admin/Conta";
 import { Perfil } from "@/components/admin/Perfil";
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -74,7 +75,7 @@ function Admin() {
         {isAdmin.isLoading ? <p>Carregando...</p> : !isAdmin.data ? (
           <p className="text-muted-foreground">Sua conta não tem permissão de administrador.</p>
         ) : aba === "dashboard" ? <Dashboard /> : aba === "imoveis" ? <Imoveis /> : aba === "carteira" ? <Carteira /> : aba === "leads" ? <Leads /> :
-          aba === "consultas" ? <Consultas /> : aba === "bairros" ? <Bairros /> : <Perfil />}
+          aba === "consultas" ? <Consultas /> : aba === "bairros" ? <Bairros /> : <><Perfil /><Conta emailAtual={user.email ?? ""} /></>}
       </main>
     </div>
   );

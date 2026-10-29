@@ -17,7 +17,19 @@ export const STATUS_CARTEIRA = [
 ] as const;
 const label = (s: string) => STATUS_CARTEIRA.find(([k]) => k === s)?.[1] ?? s;
 const hoje = () => new Date().toISOString().slice(0, 10);
-const vazio = (): Form => ({ titulo: "", bairro: "", tipo: "Apartamento", negocio: "Venda", proprietario: "", data_entrada: hoje(), status: "captado", valor: 0, notas: "" });
+const vazio = (): Form => ({
+  titulo: "",
+  cidade: "",
+  bairro: "",
+  endereco: "",
+  tipo: "Apartamento",
+  negocio: "Venda",
+  proprietario: "",
+  data_entrada: hoje(),
+  status: "captado",
+  valor: 0,
+  notas: "",
+});
 
 export function Carteira() {
   const qc = useQueryClient();
@@ -32,13 +44,24 @@ export function Carteira() {
     queryKey: ["bairros"],
     queryFn: async () => (await supabase.from("neighborhoods").select("nome").order("nome")).data?.map((b) => b.nome) ?? [],
   });
+  const cidades = useQuery({
+    queryKey: ["cidades"],
+    queryFn: async () => (await supabase.from("cities").select("nome").order("nome")).data?.map((c) => c.nome) ?? [],
+  });
+
   const refresh = () => qc.invalidateQueries({ queryKey: ["carteira"] });
 
   async function salvar(e: React.FormEvent) {
     e.preventDefault();
     if (!form) return;
     const { id, ...rest } = form;
-    const payload = { ...rest, valor: Number(rest.valor) };
+    const payload = {
+      ...rest,
+      cidade: rest.cidade?.trim() || "",
+      bairro: rest.bairro?.trim() || "",
+      endereco: rest.endereco?.trim() || "",
+      valor: Number(rest.valor),
+    };
     const r = id ? await supabase.from("portfolio").update(payload).eq("id", id) : await supabase.from("portfolio").insert(payload);
     if (r.error) { setMsg(r.error.message); return; }
     setForm(null); setMsg(""); refresh();
@@ -72,7 +95,15 @@ export function Carteira() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-3xl sm:text-4xl">Carteira</h1>
-        <button onClick={() => { setForm(vazio()); setMsg(""); }} className="rounded-md bg-primary px-5 py-3 font-semibold text-primary-foreground">+ Adicionar à carteira</button>
+        <button
+          onClick={() => {
+            setForm({ ...vazio() });
+            setMsg("");
+          }}
+          className="rounded-md bg-primary px-5 py-3 font-semibold text-primary-foreground shadow hover:opacity-90 transition"
+        >
+          + Adicionar à carteira
+        </button>
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
@@ -84,14 +115,24 @@ export function Carteira() {
       {form && (
         <form onSubmit={salvar} className="grid gap-3 rounded-xl border bg-card p-6 sm:grid-cols-2">
           <h2 className="text-2xl sm:col-span-2">{form.id ? "Editar imóvel da carteira" : "Novo imóvel na carteira"}</h2>
-          <label className="text-sm">Imóvel / endereço<input required value={form.titulo} onChange={(e) => set("titulo", e.target.value)} className={input} /></label>
-          <label className="text-sm">Bairro
+          <label className="text-sm sm:col-span-2">Imóvel / identificação<input required value={form.titulo} onChange={(e) => set("titulo", e.target.value)} className={input} /></label>
+          <label className="text-sm">
+            Cidade
+            <select value={form.cidade} onChange={(e) => set("cidade", e.target.value)} className={input}>
+              <option value="">Selecione...</option>
+              {form.cidade && !cidades.data?.includes(form.cidade) && <option>{form.cidade}</option>}
+              {cidades.data?.map((c) => <option key={c}>{c}</option>)}
+            </select>
+          </label>
+          <label className="text-sm">
+            Bairro
             <select value={form.bairro} onChange={(e) => set("bairro", e.target.value)} className={input}>
               <option value="">Selecione...</option>
               {form.bairro && !bairros.data?.includes(form.bairro) && <option>{form.bairro}</option>}
               {bairros.data?.map((b) => <option key={b}>{b}</option>)}
             </select>
           </label>
+          <label className="text-sm sm:col-span-2">Endereço<input value={form.endereco} onChange={(e) => set("endereco", e.target.value)} placeholder="Rua, número, complemento" className={input} /></label>
           <label className="text-sm">Tipo<select value={form.tipo} onChange={(e) => set("tipo", e.target.value)} className={input}><option>Apartamento</option><option>Casa</option><option>Cobertura</option><option>Terreno</option><option>Comercial</option></select></label>
           <label className="text-sm">Negócio<select value={form.negocio} onChange={(e) => set("negocio", e.target.value)} className={input}><option>Venda</option><option>Aluguel</option></select></label>
           <label className="text-sm">Proprietário<input value={form.proprietario} onChange={(e) => set("proprietario", e.target.value)} className={input} /></label>
@@ -100,8 +141,8 @@ export function Carteira() {
           <label className="text-sm">Valor (R$)<input type="number" min={0} required value={form.valor} onChange={(e) => set("valor", e.target.value)} className={input} /></label>
           <label className="text-sm sm:col-span-2">Observações<textarea value={form.notas} onChange={(e) => set("notas", e.target.value)} className="min-h-20 w-full rounded-md border border-input bg-background p-3 text-sm" /></label>
           <div className="flex gap-3 sm:col-span-2">
-            <button className="rounded-md bg-primary px-5 py-3 font-semibold text-primary-foreground">Salvar</button>
-            <button type="button" onClick={() => setForm(null)} className="rounded-md border px-5 py-3">Cancelar</button>
+            <button className="rounded-md bg-primary px-5 py-3 font-semibold text-primary-foreground shadow hover:opacity-90 transition">Salvar</button>
+            <button type="button" onClick={() => setForm(null)} className="rounded-md border px-5 py-3 hover:bg-muted transition">Cancelar</button>
           </div>
           {msg && <p className="text-sm text-destructive sm:col-span-2">{msg}</p>}
         </form>
@@ -109,7 +150,7 @@ export function Carteira() {
 
       <div className="flex flex-wrap gap-2 text-sm">
         {[["todos", "Todos"] as const, ...STATUS_CARTEIRA].map(([k, l]) => (
-          <button key={k} onClick={() => setFiltro(k)} className={`rounded-full border px-3 py-1 ${filtro === k ? "bg-primary text-primary-foreground" : ""}`}>
+          <button key={k} onClick={() => setFiltro(k)} className={`rounded-full border px-3 py-1 transition ${filtro === k ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}>
             {l} ({k === "todos" ? all.length : all.filter((i) => i.status === k).length})
           </button>
         ))}
@@ -120,15 +161,15 @@ export function Carteira() {
           <div key={i.id} className="flex flex-wrap items-center gap-4 p-4">
             <div className="min-w-56 flex-1">
               <p className="font-semibold">{i.titulo}</p>
-              <p className="text-sm text-muted-foreground">{[i.bairro, i.tipo, i.negocio, i.proprietario && `Prop.: ${i.proprietario}`].filter(Boolean).join(" · ")}</p>
+              <p className="text-sm text-muted-foreground">{[i.endereco, i.bairro, i.cidade, i.tipo, i.negocio, i.proprietario && `Prop.: ${i.proprietario}`].filter(Boolean).join(" · ")}</p>
               <p className="text-xs text-muted-foreground">Entrada: {new Date(i.data_entrada + "T00:00:00").toLocaleDateString("pt-BR")} · há {dias(i.data_entrada)} dias</p>
             </div>
             <p className="font-display text-xl text-primary">{brl(Number(i.valor))}</p>
             <select aria-label="Status" value={i.status} onChange={(e) => mudarStatus(i.id, e.target.value)} className="h-10 rounded-md border border-input bg-background px-3 text-sm">
               {STATUS_CARTEIRA.map(([k, l]) => <option key={k} value={k}>{l}</option>)}
             </select>
-            <button onClick={() => { setForm({ ...i }); setMsg(""); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="rounded-md border px-3 py-2 text-sm">Editar</button>
-            <button onClick={() => del(i)} className="rounded-md border px-3 py-2 text-sm text-destructive">Excluir</button>
+            <button onClick={() => { setForm({ ...i }); setMsg(""); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="rounded-md border px-3 py-2 text-sm hover:bg-muted transition">Editar</button>
+            <button onClick={() => del(i)} className="rounded-md border px-3 py-2 text-sm text-destructive hover:bg-destructive/10 transition">Excluir</button>
           </div>
         ))}
         {lista.length === 0 && <p className="p-6 text-muted-foreground">{filtro === "todos" ? "Nenhum imóvel na carteira ainda." : `Nenhum imóvel com status "${label(filtro)}".`}</p>}

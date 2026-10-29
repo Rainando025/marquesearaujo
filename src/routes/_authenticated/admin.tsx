@@ -31,7 +31,7 @@ const abas = [
   ["carteira", "Carteira"],
   ["leads", "Leads e clientes"],
   ["consultas", "Consultas"],
-  ["bairros", "Bairros"],
+  ["bairros", "Bairros e Cidades"],
   ["perfil", "Meus dados"],
 ] as const;
 type Aba = (typeof abas)[number][0];
@@ -47,6 +47,9 @@ function Admin() {
     queryFn: async () => (await supabase.rpc("has_role", { _user_id: user.id, _role: "admin" })).data === true,
   });
 
+  const empresa = nomeEmpresa(site.data);
+  const logoUrl = site.data?.settings?.logo_url;
+
   async function sair() {
     await qc.cancelQueries(); qc.clear();
     await supabase.auth.signOut();
@@ -57,16 +60,27 @@ function Admin() {
     <div className="min-h-screen">
       <header className="border-b bg-card">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-4 sm:px-6">
-          <Link to="/" className="min-w-0 truncate font-display text-xl sm:text-2xl">{nomeEmpresa(site.data)}<span className="text-gold">.</span> <span className="text-sm text-muted-foreground">painel</span></Link>
+          <Link to="/" className="flex items-center gap-3 min-w-0">
+            {logoUrl && (
+              <img
+                src={logoUrl}
+                alt={`Logo ${empresa}`}
+                className="h-8 w-auto max-w-[120px] object-contain rounded"
+              />
+            )}
+            <span className="min-w-0 truncate font-display text-xl sm:text-2xl">
+              {empresa}<span className="text-gold">.</span> <span className="text-sm font-sans font-normal text-muted-foreground">painel</span>
+            </span>
+          </Link>
           <div className="flex items-center gap-4 text-sm">
             <span className="hidden text-muted-foreground sm:inline">{user.email}</span>
-            <button onClick={sair} className="rounded-md border px-3 py-2">Sair</button>
+            <button onClick={sair} className="rounded-md border px-3 py-2 hover:bg-muted transition">Sair</button>
           </div>
         </div>
         {isAdmin.data && (
           <nav className="mx-auto flex max-w-6xl gap-1 overflow-x-auto px-2 sm:px-6">
             {abas.map(([k, l]) => (
-              <button key={k} onClick={() => setAba(k)} className={`whitespace-nowrap border-b-2 px-4 py-3 text-sm ${aba === k ? "border-gold font-semibold" : "border-transparent text-muted-foreground"}`}>{l}</button>
+              <button key={k} onClick={() => setAba(k)} className={`whitespace-nowrap border-b-2 px-4 py-3 text-sm transition ${aba === k ? "border-gold font-semibold text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}>{l}</button>
             ))}
           </nav>
         )}

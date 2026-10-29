@@ -1,16 +1,10 @@
-<!-- LOVABLE:BEGIN -->
-> [!IMPORTANT]
-> This project is connected to [Lovable](https://lovable.dev). Avoid rewriting
-> published git history — force pushing, or rebasing/amending/squashing commits
-> that are already pushed — as it rewrites history on Lovable's side and the
-> user will likely lose their project history.
->
-> Commits you push to the connected branch sync back to Lovable and show up in
-> the editor, so keep the branch in a working state.
-<!-- LOVABLE:END -->
+# Diretrizes do Projeto - Imobiliária Marques e Araújo
 
-- Property catalog lives in the `properties` table; public reads go through `listProperties` server fn (publishable client), admin writes via browser client under RLS `has_role(admin)`. Why: one source of truth for landing page and admin.
-- Property photos go to the private `imoveis` bucket and are stored as long-lived signed URLs, because the workspace blocks public buckets.
-- AI recommendations run in `recommendProperties` server fn via Lovable AI Gateway Responses API with structured output; ids are filtered against the catalog. Why: keep key server-side and prevent invented listings.
-- Visitor writes (events, leads, recommendation query log) go through server fns using supabaseAdmin with validated input; tables have no anon policies. Why: avoid open public insert policies.
-- Site-wide broker data (name, WhatsApp, CRECI, photo) lives in the single-row `settings` table; neighborhoods in `neighborhoods` feed both admin form and site filter.
+- O catálogo de imóveis reside na tabela `properties`; leituras públicas ocorrem via `getSiteData` server fn (com cache de performance), e gravações administrativas ocorrem sob RLS `has_role(admin)`.
+- As fotos dos imóveis são enviadas para o bucket `imoveis` com URLs seguras e assinadas.
+- As cidades residem na tabela `cities` e os bairros na tabela `neighborhoods`, ambos gerenciados pelo corretor no painel admin.
+- O endereço cadastrado no imóvel possui suporte à visualização no mapa integrado e link direto para o Google Maps.
+- A logomarca da imobiliária reside na tabela `settings` (`logo_url`) e é exibida no cabeçalho e rodapé do site junto ao nome.
+- Cadastros abertos / primeiro acesso público estão desativados por segurança; apenas administradores cadastrados no banco podem acessar o painel.
+- As gravações de visitantes (eventos, leads, consultas de recomendação) passam por server functions validadas usando `supabaseAdmin`.
+- O projeto está preparado para deploy na Vercel com banco de dados Supabase.

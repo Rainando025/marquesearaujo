@@ -9,16 +9,22 @@ export function Dashboard() {
     queryKey: ["dash", dias],
     queryFn: async () => {
       const desde = new Date(Date.now() - dias * 864e5).toISOString();
+      // Otimização: reduz o limit para evitar estouro de memória e transferências pesadas do Supabase
       const [ev, leads, cons, props] = await Promise.all([
-        supabase.from("events").select("tipo, property_id, created_at").gte("created_at", desde).limit(10000),
-        supabase.from("leads").select("status, created_at"),
+        supabase
+          .from("events")
+          .select("tipo, property_id, created_at")
+          .gte("created_at", desde)
+          .order("created_at", { ascending: false })
+          .limit(2000),
+        supabase.from("leads").select("status, created_at").limit(500),
         supabase.from("recommendation_queries").select("id", { count: "exact", head: true }).gte("created_at", desde),
         supabase.from("properties").select("id, titulo"),
       ]);
       return { ev: ev.data ?? [], leads: leads.data ?? [], consultas: cons.count ?? 0, props: props.data ?? [], desde };
     },
   });
-  if (!q.data) return <p>Carregando...</p>;
+  if (!q.data) return <p className="text-muted-foreground">Carregando painel...</p>;
   const { ev, leads, consultas, props, desde } = q.data;
   const cnt = (t: string) => ev.filter((e) => e.tipo === t).length;
   const st = (s: string) => leads.filter((l) => l.status === s).length;
@@ -129,7 +135,12 @@ function Acessos() {
   const q = useQuery({
     queryKey: ["acessos", soVisitas],
     queryFn: async () => {
-      let r = supabase.from("events").select("id, tipo, ip, pagina, user_agent, created_at, properties(titulo)").order("created_at", { ascending: false }).limit(200);
+      // Otimização: limita a 100 registros recentes para resposta rápida e leveza
+      let r = supabase
+        .from("events")
+        .select("id, tipo, ip, pagina, user_agent, created_at, properties(titulo)")
+        .order("created_at", { ascending: false })
+        .limit(100);
       if (soVisitas) r = r.eq("tipo", "page_view");
       return (await r).data ?? [];
     },
@@ -140,9 +151,9 @@ function Acessos() {
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-2xl">Quem acessou o site</h2>
-          <p className="text-sm text-muted-foreground">Últimos 200 registros · {ips.size} IP(s) diferentes</p>
+          <p className="text-sm text-muted-foreground">Últimos registros · {ips.size} IP(s) diferentes</p>
         </div>
-        <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={soVisitas} onChange={(e) => setSoVisitas(e.target.checked)} />Só visitas</label>
+        <label className="flex items-center gap-2 text-sm cursor-pointer"><input type="checkbox" checked={soVisitas} onChange={(e) => setSoVisitas(e.target.checked)} />Só visitas</label>
       </div>
       <div className="max-h-[480px] overflow-auto">
         <table className="w-full text-left text-sm">

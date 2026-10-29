@@ -21,41 +21,83 @@ export const Route = createFileRoute("/auth")({
 function AuthPage() {
   const { data: site } = useSuspenseQuery(siteQuery);
   const nav = useNavigate();
-  const [modo, setModo] = useState<"entrar" | "criar">("entrar");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [msg, setMsg] = useState("");
   const [busy, setBusy] = useState(false);
 
+  const empresa = nomeEmpresa(site);
+  const logoUrl = site?.settings?.logo_url;
+
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    setBusy(true); setMsg("");
-    if (modo === "entrar") {
-      const { error } = await supabase.auth.signInWithPassword({ email: email.includes("@") ? email.trim() : `${email.trim()}@aurum.test`, password: senha });
-      if (error) setMsg("E-mail ou senha inválidos.");
-      else nav({ to: "/admin" });
+    setBusy(true);
+    setMsg("");
+    const { error } = await supabase.auth.signInWithPassword({
+      email: email.includes("@") ? email.trim() : `${email.trim()}@aurum.test`,
+      password: senha,
+    });
+    if (error) {
+      setMsg("E-mail ou senha inválidos.");
     } else {
-      const { error } = await supabase.auth.signUp({ email, password: senha, options: { emailRedirectTo: window.location.origin + "/admin" } });
-      if (error) setMsg(error.message); else nav({ to: "/admin" });
+      nav({ to: "/admin" });
     }
     setBusy(false);
   }
 
-  const input = "h-12 w-full rounded-md border border-input bg-background px-3";
+  const input = "h-12 w-full rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary";
   return (
-    <main className="flex min-h-screen items-center justify-center px-6">
-      <form onSubmit={submit} className="w-full max-w-sm space-y-4 rounded-xl border bg-card p-8">
-        <Link to="/" className="font-display text-2xl">{nomeEmpresa(site)}<span className="text-gold">.</span></Link>
-        <h1 className="text-3xl">{modo === "entrar" ? "Área do corretor" : "Criar conta"}</h1>
-        <input type="text" required placeholder="E-mail ou usuário" value={email} onChange={(e) => setEmail(e.target.value)} className={input} />
-        <input type="password" required minLength={6} placeholder="Senha" value={senha} onChange={(e) => setSenha(e.target.value)} className={input} />
-        <button disabled={busy} className="h-12 w-full rounded-md bg-primary font-semibold text-primary-foreground disabled:opacity-60">
-          {busy ? "Aguarde..." : modo === "entrar" ? "Entrar" : "Criar conta"}
+    <main className="flex min-h-screen items-center justify-center px-4 py-8">
+      <form onSubmit={submit} className="w-full max-w-sm space-y-5 rounded-2xl border bg-card p-8 shadow-lg">
+        <Link to="/" className="flex items-center gap-3">
+          {logoUrl && (
+            <img
+              src={logoUrl}
+              alt={`Logo ${empresa}`}
+              className="h-9 w-auto max-w-[120px] object-contain rounded"
+            />
+          )}
+          <span className="font-display text-2xl truncate">
+            {empresa}<span className="text-gold">.</span>
+          </span>
+        </Link>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Área do corretor</h1>
+          <p className="mt-1 text-xs text-muted-foreground">Acesso restrito para administradores cadastrados.</p>
+        </div>
+        <div className="space-y-3">
+          <label className="block text-xs font-medium text-muted-foreground">
+            E-mail ou usuário
+            <input
+              type="text"
+              required
+              autoComplete="username"
+              placeholder="seu@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className={input}
+            />
+          </label>
+          <label className="block text-xs font-medium text-muted-foreground">
+            Senha
+            <input
+              type="password"
+              required
+              autoComplete="current-password"
+              placeholder="••••••••"
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
+              className={input}
+            />
+          </label>
+        </div>
+        <button
+          disabled={busy}
+          className="h-12 w-full rounded-md bg-primary font-semibold text-primary-foreground shadow transition hover:opacity-90 disabled:opacity-60"
+        >
+          {busy ? "Entrando..." : "Entrar no painel"}
         </button>
-        {msg && <p className="text-sm text-muted-foreground">{msg}</p>}
-        <button type="button" onClick={() => setModo(modo === "entrar" ? "criar" : "entrar")} className="text-sm text-muted-foreground underline">
-          {modo === "entrar" ? "Primeiro acesso? Criar conta" : "Já tenho conta"}
-        </button>
+        {msg && <p className="text-center text-sm font-medium text-destructive">{msg}</p>}
       </form>
     </main>
   );

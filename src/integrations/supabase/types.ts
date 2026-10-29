@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      cities: {
+        Row: {
+          created_at: string
+          id: string
+          nome: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          nome: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nome?: string
+        }
+        Relationships: []
+      }
       events: {
         Row: {
           created_at: string
@@ -120,6 +138,8 @@ export type Database = {
       portfolio: {
         Row: {
           bairro: string
+          cidade: string
+          endereco: string
           created_at: string
           data_entrada: string
           id: string
@@ -133,6 +153,8 @@ export type Database = {
         }
         Insert: {
           bairro?: string
+          cidade?: string
+          endereco?: string
           created_at?: string
           data_entrada?: string
           id?: string
@@ -146,6 +168,8 @@ export type Database = {
         }
         Update: {
           bairro?: string
+          cidade?: string
+          endereco?: string
           created_at?: string
           data_entrada?: string
           id?: string
@@ -164,6 +188,8 @@ export type Database = {
           area: number
           ativo: boolean
           bairro: string
+          cidade: string
+          endereco: string
           banheiros: number
           created_at: string
           descricao: string | null
@@ -180,6 +206,8 @@ export type Database = {
           area?: number
           ativo?: boolean
           bairro: string
+          cidade?: string
+          endereco?: string
           banheiros?: number
           created_at?: string
           descricao?: string | null
@@ -196,6 +224,8 @@ export type Database = {
           area?: number
           ativo?: boolean
           bairro?: string
+          cidade?: string
+          endereco?: string
           banheiros?: number
           created_at?: string
           descricao?: string | null
@@ -237,6 +267,7 @@ export type Database = {
           creci: string
           email: string
           foto_url: string | null
+          logo_url: string | null
           id: number
           nome_corretor: string
           nome_empresa: string
@@ -248,6 +279,7 @@ export type Database = {
           creci?: string
           email?: string
           foto_url?: string | null
+          logo_url?: string | null
           id?: number
           nome_corretor?: string
           nome_empresa?: string
@@ -259,6 +291,7 @@ export type Database = {
           creci?: string
           email?: string
           foto_url?: string | null
+          logo_url?: string | null
           id?: number
           nome_corretor?: string
           nome_empresa?: string
